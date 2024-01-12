@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <base href="/apps/geogebra/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GeoGebra</title>
+    <style>
+      .outer {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+      .inner {
+        flex: 1;
+      }
+      .GeoGebraFrame {
+        border-width: 0 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="outer">
+      <div class="inner">
+        <div id="ggb-element"></div>
+      </div>
+    </div>
+    <script src="GeoGebra/deployggb.js"></script>
+    <script>
+      const config = new Map()
+      const prefix = 'data:application/octet-stream;base64,'
+
+      const path = () => `/wd/${encodeURIComponent(config.get('filename'))}`
+
+      async function getFile() {
+        const response = await fetch(path())
+        if (response.status === 404) {
+          // that's ok, we'll create the file later
+          return ''
+        }
+        if (response.status !== 200) {
+          throw new Error('Invalid file')
+        }
+        const data = await response.arrayBuffer()
+        const url = await new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result)
+          reader.onerror = () => reject(reader.error)
+          reader.readAsDataURL(new File([data], '', { type: 'application/octet-stream' }))
+        })
+        return url.substring(prefix.length)
+      }
+
+      async function putFile(state) {
+        const data = await fetch(`${prefix}${state}`)
+        await fetch(path(), { method: 'PUT', body: await data.arrayBuffer() })
+      }
+
+      function resize() {
+        window.requestAnimationFrame(() => {
+          if (window.ggbApplet) {
+            ggbApplet.setSize(ggbElement.parentElement.clientWidth, ggbElement.parentElement.clientHeight)
+          }
+        })
+      }
+
+      async function onLoad(event) {
+        const args = new URLSearchParams(window.location.search)
+        config.set('filename', args.get('filename'))
+
+        const ggbElement = document.getElementById('ggb-element')
+        window.ggbElement = ggbElement
+
+        const ggbParams = {
+          appName: 'classic',
+          showToolbar: true,
+          showAlgebraInput: true,
+          showMenuBar: true,
+          enableFileFeatures: false,
+          useBrowserForJs: true,
+          disableAutoScale: true,
+          perspective: '1',
+          width: ggbElement.parentElement.clientWidth,
+          height: ggbElement.parentElement.clientHeight,
+          borderRadius: 0,
+          ggbBase64: await getFile(),
+          appletOnLoad() {
+            resize()
+          }
+        }
+
+        const applet = new GGBApplet(ggbParams, true)
+        applet.setHTML5Codebase('GeoGebra/HTML5/5.0/web3d/')
+        applet.inject(ggbElement.id)
+
+        window.addEventListener('resize', resize)
+
+        window.addEventListener('keydown', event => {
+          if ((navigator.platform === 'MacIntel' ? event.metaKey : event.ctrlKey) && event.key === 's') {
+            window.ggbApplet.getBase64(putFile)
+            event.preventDefault()
+          }
+        })
+      }
+
+      window.addEventListener('load', onLoad)
+    </script>
+  </body>
+</html>
