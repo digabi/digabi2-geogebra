@@ -37,14 +37,11 @@
       const path = () => `/wd/${encodeURIComponent(config.get('filename'))}`
 
       async function getFile() {
-        const response = await fetch(path())
-        if (response.status === 404) {
-          // that's ok, we'll create the file later
+        const propfindResponse = await fetch(path(), { method: 'PROPFIND' })
+        if (propfindResponse.status !== 207) {
           return ''
         }
-        if (response.status !== 200) {
-          throw new Error('Invalid file')
-        }
+        const response = await fetch(path())
         const data = await response.arrayBuffer()
         const url = await new Promise((resolve, reject) => {
           const reader = new FileReader()
