@@ -57,13 +57,19 @@
         await fetch(path(), { method: 'PUT', body: await data.arrayBuffer() })
       }
 
-      function resize() {
-        window.requestAnimationFrame(() => {
-          if (window.ggbApplet) {
-            ggbApplet.setSize(ggbElement.parentElement.clientWidth, ggbElement.parentElement.clientHeight)
-          }
-        })
+      function debounce(wait, callback) {
+        let timeout
+        return () => {
+          window.clearTimeout(timeout)
+          timeout = window.setTimeout(callback, wait)
+        }
       }
+
+      const resize = debounce(32, () => {
+        if (window.ggbApplet) {
+          ggbApplet.setSize(ggbElement.parentElement.clientWidth, ggbElement.parentElement.clientHeight)
+        }
+      })
 
       async function onLoad(event) {
         const args = new URLSearchParams(window.location.search)
