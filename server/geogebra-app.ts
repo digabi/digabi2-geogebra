@@ -10,18 +10,25 @@ interface AppParams {
 export default function createGeogebraApp(args: AppParams) {
   const root = '/apps/geogebra'
 
-  const ad = new dnssd.Advertisement('_http._tcp,_abittiapp', args.port, {
+  const ad = new dnssd.Advertisement('_http._tcp', args.port, {
     name: 'GeoGebra',
-    txt: {
-      path: root,
-      ext: '.ggb',
-      mime: 'application/vnd.geogebra.file',
-      cas: '1'
-    }
+    txt: { path: '/.well-known/appspecific/dev.abitti.json' }
   })
 
   const app = express()
   app.use(morgan('combined'))
+
+  app.use('/.well-known/appspecific/dev.abitti.json', (req, res) =>
+    res.json({
+      geogebra: {
+        name: 'GeoGebra',
+        path: `${root}/`,
+        filetypes: [{ mime: 'application/vnd.geogebra.file', glob: '*.ggb' }, { glob: '*.ggb' }],
+        categories: ['cas']
+      }
+    })
+  )
+
   app.use(root, express.static(path.resolve(__dirname, '../public')))
 
   const server = app.listen(args.port)
