@@ -8,7 +8,7 @@ interface AppParams {
 }
 
 export default function createGeogebraApp(args: AppParams) {
-  const root = '/apps/geogebra'
+  const root = '/'
 
   const ad = new dnssd.Advertisement('_http._tcp', args.port, {
     name: 'GeoGebra',

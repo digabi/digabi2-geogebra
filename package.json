@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "docker:build": "docker build . -t abitti2-geogebra",
-    "docker:run": "docker run --rm -it --network ktpjs_ktpjs_network abitti2-geogebra"
+    "docker:run": "docker run --rm -it --network ktpjs_ktpjs_network --hostname geogebra abitti2-geogebra"
   },
   "devDependencies": {
     "@digabi/typescript-config": "^1.0.0",
