@@ -1,6 +1,4 @@
 dist/
 node_modules/
-public/GeoGebra
-public/README.txt
 cache/
 .idea/

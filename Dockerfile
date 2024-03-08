@@ -3,8 +3,7 @@ FROM node:18.17.0 AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm clean-install
-COPY Makefile sha512sum.txt ./
-RUN make public/GeoGebra/deployggb.js
+COPY public public
 
 FROM node:18.17.0 AS build
 
