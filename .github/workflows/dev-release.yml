@@ -31,5 +31,6 @@ jobs:
         with:
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/geogebra:${{ github.ref_name }}
+          provenance: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
