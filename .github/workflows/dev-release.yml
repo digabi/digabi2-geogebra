@@ -5,8 +5,8 @@ on:
     tags: '**'
 
 jobs:
-  build:
-    name: Build
+  dev-release:
+    name: Release to private ECR
     runs-on: ubuntu-latest
     permissions:
       id-token: write
