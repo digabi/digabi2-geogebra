@@ -27,7 +27,7 @@ echo ""
 OLD_NPM_VERSION=v$(npm pkg get version | tr -d \") # version is printed without v prefix, so it is added here
 echo "Old version: $OLD_NPM_VERSION"
 
-NEW_NPM_VERSION=$(npm version --git-tag-version=false $1)
+NEW_NPM_VERSION=$(npm version --git-tag-version=false "$1")
 echo "New version: $NEW_NPM_VERSION"
 
 
@@ -37,15 +37,15 @@ read -r answer
 
 # Commit and push changes if the user answered y
 if [ "$answer" = "y" ]; then
-  git add $FILES_TO_INCLUDE_IN_RELEASE_COMMITS
+  git add "$FILES_TO_INCLUDE_IN_RELEASE_COMMITS"
   git commit -m "Release $NEW_NPM_VERSION"
-  if ! git tag -m "Release $NEW_NPM_VERSION" $NEW_NPM_VERSION; then
+  if ! git tag -m "Release $NEW_NPM_VERSION" "$NEW_NPM_VERSION"; then
     git reset --soft HEAD~1
     echo "Failed to create tag $NEW_NPM_VERSION. Release aborted and commit reverted."
     exit 1
   fi
   echo ""
-  git push --atomic origin $BRANCH_TO_RELEASE_FROM $NEW_NPM_VERSION
+  git push --atomic origin $BRANCH_TO_RELEASE_FROM "$NEW_NPM_VERSION"
   echo ""
   echo "Release commit and tag $NEW_NPM_VERSION pushed."
 else
