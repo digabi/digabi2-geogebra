@@ -11,13 +11,14 @@ unreleased_tags=$(echo "$tags" "$released" | tr ' ' '\n' | sort | uniq -u)
 # check if fzf is installed
 if ! command -v fzf &> /dev/null
 then
+    echo -e "Install fzf for a nicer selection experience\n"
+    echo "Unreleased tags:"
     echo "$unreleased_tags"
     read -r -p "Enter tag to release: " tag_to_release
-    echo tag_to_release: "$unreleased_tags"
 else
-    tag_to_release=$(echo "$unreleased_tags" | tr ' ' '\n' | fzf)
-    echo tag_to_release from list: "$tag_to_release"
+    tag_to_release=$(echo "$unreleased_tags" | tr ' ' '\n' | fzf --prompt="Select tag to release: ")
 fi
 
+echo "Running release workflow for "$tag_to_release""
 # using github cli trigger manual workflow with the tag to release as the tag parameter
 gh workflow run manual-prod-release.yml -f tag="$tag_to_release"
