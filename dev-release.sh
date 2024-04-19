@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 BRANCH_TO_RELEASE_FROM="main"
 FILES_TO_INCLUDE_IN_RELEASE_COMMITS="package.json package-lock.json"
