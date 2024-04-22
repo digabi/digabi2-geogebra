@@ -37,7 +37,7 @@ jobs:
         with:
           registry-type: public
       - name: Tag image
-        run: docker tag ${{ steps.login-ecr.outputs.registry }}/geogebra:${{ inputs.tag }} ${{ steps.login-public-ecr.outputs.registry }}/u3p9b9p9/geogebra-public:${{ inputs.tag }}
+        run: docker tag ${{ steps.login-ecr.outputs.registry }}/geogebra:${{ inputs.tag }} ${{ steps.login-public-ecr.outputs.registry }}/u3p9b9p9/geogebra:${{ inputs.tag }}
       - name: Push image
         run: docker push ${{ steps.login-public-ecr.outputs.registry }}/u3p9b9p9/geogebra:${{ inputs.tag }}
       - name: Create Github Release
