@@ -10,6 +10,7 @@ on:
 env:
   DEV_IMAGE_NAME: geogebra
   PROD_IMAGE_NAME: geogebra-prod
+  GITHUB_ACCESS_ROLE: GeogebraGithubActionsAccessRole
 jobs:
   release:
     name: Release private image to public ECR
@@ -21,7 +22,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.UTILITY_ACCOUNT_ID }}:role/GeogebraGithubActionsAccessRole
+          role-to-assume: arn:aws:iam::${{ secrets.UTILITY_ACCOUNT_ID }}:role/$GITHUB_ACCESS_ROLE
           aws-region: eu-north-1
       - name: Login to Amazon ECR
         id: login-ecr
