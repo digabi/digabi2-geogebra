@@ -7,10 +7,15 @@ on:
         description: 'Tag'
         required: true
         type: string
+
+concurrency:
+  group: ${{ inputs.tag }}
+
 env:
   DEV_IMAGE_NAME: geogebra
   PROD_IMAGE_NAME: geogebra-prod
   GITHUB_ACCESS_ROLE: GeogebraGithubActionsAccessRole
+
 jobs:
   release:
     name: Release private image to public ECR
