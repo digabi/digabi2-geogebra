@@ -1,6 +1,6 @@
 {
   "name": "abitti2-geogebra",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "scripts": {
     "docker:build": "docker build . -t abitti2-geogebra",
     "docker:run": "docker run --rm -it --network ktpjs_ktpjs_network --hostname geogebra abitti2-geogebra"
