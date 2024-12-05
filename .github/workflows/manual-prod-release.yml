@@ -10,10 +10,10 @@ on:
 
 concurrency:
   group: ${{ inputs.tag }}
-  
+
 jobs:
   release:
-    uses: digabi/workflows-common/.github/workflows/digabi2-companion-app-prod-release.yml@4ec7a0650fabcced0f93f871e52d08dfd1702a9d
+    uses: digabi/workflows-common/.github/workflows/digabi2-companion-app-prod-release.yml@cbc4a31631cca4538bbbeddba0a71ad0dd845b28
     with:
       app-name: geogebra
       aws-access-role: GeogebraGithubActionsAccessRole
