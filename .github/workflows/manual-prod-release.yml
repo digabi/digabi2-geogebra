@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   release:
-    uses: digabi/workflows-common/.github/workflows/digabi2-companion-app-prod-release.yml@cbc4a31631cca4538bbbeddba0a71ad0dd845b28
+    uses: digabi/workflows-common/.github/workflows/digabi2-companion-app-prod-release.yml@0393026c55cabbf1dca0028ac114e760234e02bf
     with:
       app-name: geogebra
       aws-access-role: GeogebraGithubActionsAccessRole
