@@ -65,11 +65,19 @@
         }
       }
 
-      const resize = debounce(32, () => {
-        if (window.ggbApplet) {
-          ggbApplet.setSize(ggbElement.parentElement.clientWidth, ggbElement.parentElement.clientHeight)
+      function debounceRepaint(callback) {
+        let timeout
+        return () => {
+          window.cancelAnimationFrame(timeout)
+          timeout = window.requestAnimationFrame(callback)
         }
-      })
+      }
+
+      const resize = debounce(1000 / 30, debounceRepaint(() => {
+        if (window.ggbApplet) {
+          ggbApplet.setSize(window.innerWidth, window.innerHeight)
+        }
+      }))
 
       async function onLoad(event) {
         const args = new URLSearchParams(window.location.search)
@@ -87,8 +95,8 @@
           useBrowserForJs: true,
           disableAutoScale: true,
           perspective: '1',
-          width: ggbElement.parentElement.clientWidth,
-          height: ggbElement.parentElement.clientHeight,
+          width: window.innerWidth,
+          height: window.innerHeight,
           borderRadius: 0,
           ggbBase64: await getFile(),
           appletOnLoad() {
