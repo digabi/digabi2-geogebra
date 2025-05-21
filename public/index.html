@@ -31,6 +31,11 @@
     </div>
     <script src="GeoGebra/deployggb.js"></script>
     <script>
+      // Lang query parameter is set by exam window container
+      const search = new URLSearchParams(window.location.search)
+      const lang = search.get('lang')
+      localStorage.setItem('GeoGebraLangUI', lang)
+
       const config = new Map()
       const prefix = 'data:application/octet-stream;base64,'
 
