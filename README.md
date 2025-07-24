@@ -1,9 +1,14 @@
 # GeoGebra
-Dockerized GeoGebra
+
+Dockerized GeoGebra.
 
 ## Development
 
-The development flow is roughly as follows
+GeoGebra source code has been obtained from https://download.geogebra.org/package/geogebra-math-apps-bundle, linked at https://geogebra.github.io/docs/reference/en/GeoGebra_Apps_Embedding. It does not seem to be available on Git and can therefore not be submoduled.
+
+To update GeoGebra to the latest version, run `./update-geogebra.sh`.
+
+The development flow is roughly as follows:
 
 1. Make your changes
 2. To test your changes, rebuild and tag the docker image by running `docker build -t "863419159770.dkr.ecr.eu-north-1.amazonaws.com/geogebra:v$(npm pkg get version | tr -d \")" .`
