@@ -1,21 +1,7 @@
 {
-  "name": "abitti2-geogebra",
-  "version": "1.1.0",
-  "scripts": {
-    "docker:build": "docker build . -t abitti2-geogebra",
-    "docker:run": "docker run --rm -it --network ktpjs_ktpjs_network --hostname geogebra abitti2-geogebra"
-  },
-  "devDependencies": {
-    "@digabi/typescript-config": "^1.0.0",
-    "@types/dnssd": "^0.4.5",
-    "@types/express": "^4.17.21",
-    "@types/morgan": "^1.9.9",
-    "typescript": "^5.3.3"
-  },
-  "dependencies": {
-    "dnssd": "^0.4.1",
-    "express": "^4.18.2",
-    "morgan": "^1.10.0"
-  },
-  "main": "bin/geogebra"
+  "name": "digabi2-geogebra",
+  "version": "1.2.0",
+  "scripts": {},
+  "devDependencies": {},
+  "dependencies": {}
 }

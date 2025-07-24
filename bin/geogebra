@@ -1,8 +1,0 @@
-#!/usr/bin/env node
-'use strict'
-
-const server = require('../dist/geogebra-app').default({ port: 9999 })
-process.on('SIGINT', () => {
-  server.close()
-  process.exit(1)
-})
