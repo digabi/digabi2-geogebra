@@ -1,24 +1,7 @@
-FROM node:18.17.0 AS deps
+FROM nginx:1.29.0-alpine
 
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm clean-install
-COPY public public
+COPY ./public /app
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
-FROM node:18.17.0 AS build
-
-WORKDIR /app
-COPY --from=deps /app/node_modules node_modules
-COPY server server
-COPY tsconfig.json .
-RUN npx tsc --project server
-
-FROM node:18.17.0
-
-WORKDIR /app
-COPY --from=deps /app/node_modules node_modules
-COPY --from=build /app/dist dist
-COPY --from=deps /app/public public
-COPY public/index.html public/index.html
-COPY bin bin
-ENTRYPOINT ["/app/bin/geogebra"]
+EXPOSE 9999

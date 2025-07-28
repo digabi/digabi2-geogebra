@@ -1,6 +1,0 @@
-{
-  "extends": "@digabi/typescript-config/root/tsconfig.json",
-  "compilerOptions": {
-    "typeRoots": ["typings", "node_modules/@types"]
-  }
-}
