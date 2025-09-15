@@ -21,12 +21,27 @@
       .GeoGebraFrame {
         border-width: 0 !important;
       }
+      #saved-indicator {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        font-family: 'Noto Sans', sans-serif;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+        background-color: #e6efff;
+        border: 1px solid #466fb5;
+        color: #173e82;
+      }
     </style>
   </head>
   <body>
     <div class="outer">
       <div class="inner">
         <div id="ggb-element"></div>
+        <div id="saved-indicator">Saved!</div>
       </div>
     </div>
     <script src="GeoGebra/deployggb.js"></script>
@@ -40,6 +55,9 @@
       const prefix = 'data:application/octet-stream;base64,'
 
       const path = () => `/wd/${encodeURIComponent(config.get('filename'))}`
+
+      const savedIndicator = document.getElementById('saved-indicator')
+      let saveTimeout = null
 
       async function getFile() {
         const propfindResponse = await fetch(path(), { method: 'PROPFIND' })
@@ -58,8 +76,20 @@
       }
 
       async function putFile(state) {
+        savedIndicator.style.opacity = '0'
         const data = await fetch(`${prefix}${state}`)
         await fetch(path(), { method: 'PUT', body: await data.arrayBuffer() })
+        savedIndicator.style.opacity = '1'
+
+        // Poista aikaisempi timeout jos sellainen on olemassa
+        if (saveTimeout) {
+          clearTimeout(saveTimeout)
+        }
+
+        // Aloita uusi timeout
+        saveTimeout = setTimeout(() => {
+          savedIndicator.style.opacity = '0'
+        }, 2000)
       }
 
       function debounce(wait, callback) {
