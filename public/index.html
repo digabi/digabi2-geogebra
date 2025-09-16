@@ -23,16 +23,11 @@
       }
       #saved-indicator {
         position: absolute;
-        top: 50%;
-        left: 50%;
+        top: 17px;
+        right: 150px;
         font-family: 'Arial', sans-serif;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        transform: translate(-50%, -50%);
         opacity: 0;
         transition: opacity 0.5s ease-in-out;
-        background-color: #e6efff;
-        border: 1px solid #466fb5;
         color: #173e82;
       }
     </style>
@@ -44,6 +39,7 @@
         <div id="saved-indicator" />
       </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="GeoGebra/deployggb.js"></script>
     <script>
       // Lang query parameter is set by exam window container
@@ -57,7 +53,6 @@
       const path = () => `/wd/${encodeURIComponent(config.get('filename'))}`
 
       const savedIndicator = document.getElementById('saved-indicator')
-      let saveTimeout = null
 
       async function getFile() {
         const propfindResponse = await fetch(path(), { method: 'PROPFIND' })
@@ -75,30 +70,84 @@
         return url.substring(prefix.length)
       }
 
+      async function getContentHash(base64Data) {
+        if (!base64Data) return null
+
+        try {
+          // Extract zip file and compare content
+          const binaryData = atob(base64Data)
+          const zipBuffer = new Uint8Array(binaryData.length)
+          for (let i = 0; i < binaryData.length; i++) {
+            zipBuffer[i] = binaryData.charCodeAt(i)
+          }
+
+          // Use JSZip library to extract zip file
+          const JSZip = window.JSZip
+          if (!JSZip) {
+            // Fallback: compare entire data if JSZip is not available
+            const hashBuffer = await crypto.subtle.digest('SHA-256', zipBuffer)
+            return Array.from(new Uint8Array(hashBuffer))
+              .map(b => b.toString(16).padStart(2, '0'))
+              .join('')
+          }
+
+          const zip = await JSZip.loadAsync(zipBuffer)
+          const contentHash = {}
+
+          // Collect content of all files
+          for (const [filename, file] of Object.entries(zip.files)) {
+            if (!file.dir) {
+              const content = await file.async('text')
+              contentHash[filename] = content
+            }
+          }
+
+          // Create hash from content (without file names)
+          const contentString = JSON.stringify(contentHash)
+          const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(contentString))
+          return Array.from(new Uint8Array(hashBuffer))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('')
+        } catch (error) {
+          console.error('Error processing zip:', error)
+          // Fallback: compare entire data
+          const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(base64Data))
+          return Array.from(new Uint8Array(hashBuffer))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('')
+        }
+      }
+
+      let lastSavedData
+
       async function putFile(state) {
+        const hashA = await getContentHash(lastSavedData)
+        const hashB = await getContentHash(state)
+
+        const contentChanged = hashA !== hashB
+
+        if (!contentChanged) {
+          return
+        }
         savedIndicator.style.opacity = '0'
         const data = await fetch(`${prefix}${state}`)
         await fetch(path(), { method: 'PUT', body: await data.arrayBuffer() })
+        lastSavedData = state
 
         switch (lang) {
           case 'fi-FI':
-            savedIndicator.textContent = 'Tallennettu!'
+            savedIndicator.textContent = 'Tallennettu'
             break
           case 'sv-FI':
-            savedIndicator.textContent = 'Sparat!'
+            savedIndicator.textContent = 'Sparat'
             break
+          case 'en-Fi':
           default:
-            savedIndicator.textContent = 'Saved!'
+            savedIndicator.textContent = 'Saved'
             break
         }
         savedIndicator.style.opacity = '1'
 
-        // Poista aikaisempi timeout jos sellainen on olemassa
-        if (saveTimeout) {
-          clearTimeout(saveTimeout)
-        }
-
-        // Aloita uusi timeout
         saveTimeout = setTimeout(() => {
           savedIndicator.style.opacity = '0'
         }, 2000)
@@ -140,6 +189,7 @@
           ggbBase64: await getFile(),
           appletOnLoad() {
             resize()
+            lastSavedData = window.ggbApplet.getBase64()
           }
         }
 
@@ -155,6 +205,7 @@
             event.preventDefault()
           }
         })
+        setInterval(() => putFile(window.ggbApplet.getBase64()), 3000)
       }
 
       window.addEventListener('load', onLoad)
