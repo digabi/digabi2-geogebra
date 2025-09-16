@@ -25,7 +25,7 @@
         position: absolute;
         top: 50%;
         left: 50%;
-        font-family: 'Noto Sans', sans-serif;
+        font-family: 'Arial', sans-serif;
         padding: 0.5rem 1rem;
         border-radius: 5px;
         transform: translate(-50%, -50%);
@@ -41,7 +41,7 @@
     <div class="outer">
       <div class="inner">
         <div id="ggb-element"></div>
-        <div id="saved-indicator">Saved!</div>
+        <div id="saved-indicator" />
       </div>
     </div>
     <script src="GeoGebra/deployggb.js"></script>
@@ -79,6 +79,18 @@
         savedIndicator.style.opacity = '0'
         const data = await fetch(`${prefix}${state}`)
         await fetch(path(), { method: 'PUT', body: await data.arrayBuffer() })
+
+        switch (lang) {
+          case 'fi-FI':
+            savedIndicator.textContent = 'Tallennettu!'
+            break
+          case 'sv-FI':
+            savedIndicator.textContent = 'Sparat!'
+            break
+          default:
+            savedIndicator.textContent = 'Saved!'
+            break
+        }
         savedIndicator.style.opacity = '1'
 
         // Poista aikaisempi timeout jos sellainen on olemassa
