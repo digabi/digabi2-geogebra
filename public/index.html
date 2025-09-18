@@ -149,7 +149,7 @@
         })
 
         setInterval(() => {
-          if (window.ggbApplet) {
+          if (window.ggbApplet && document.hasFocus()) {
             putFile(window.ggbApplet.getBase64())
           }
         }, 10_000)
