@@ -57,6 +57,8 @@
 
       const savedIndicator = document.getElementById('saved-indicator')
       let saveTimeout = null
+      let autosaveTimeout
+      const autosaveDelay = 7_500
 
       async function getFile() {
         const propfindResponse = await fetch(path(), { method: 'PROPFIND' })
@@ -76,8 +78,11 @@
 
       async function putFile(state) {
         savedIndicator.style.opacity = '0'
-        const data = await fetch(`${prefix}${state}`)
-        await fetch(path(), { method: 'PUT', body: await data.arrayBuffer() })
+        const data =
+          typeof Uint8Array.fromBase64 === 'function'
+            ? Uint8Array.fromBase64(state)
+            : await (await fetch(`${prefix}${state}`)).arrayBuffer()
+        await fetch(path(), { method: 'PUT', body: data })
 
         switch (lang) {
           case 'fi-FI':
@@ -133,6 +138,15 @@
           ggbBase64: await getFile(),
           appletOnLoad() {
             resize()
+
+            window.ggbApplet.registerStoreUndoListener(() => {
+              clearTimeout(autosaveTimeout)
+              autosaveTimeout = setTimeout(() => {
+                if (window.ggbApplet) {
+                  window.ggbApplet.getBase64(putFile)
+                }
+              }, autosaveDelay)
+            })
           }
         }
 
@@ -145,17 +159,19 @@
         window.addEventListener('keydown', event => {
           if ((navigator.platform === 'MacIntel' ? event.metaKey : event.ctrlKey) && event.key === 's') {
             if (window.ggbApplet) {
+              clearTimeout(autosaveTimeout)
               window.ggbApplet.getBase64(putFile)
             }
             event.preventDefault()
           }
         })
 
-        setInterval(() => {
-          if (window.ggbApplet && document.hasFocus()) {
-            putFile(window.ggbApplet.getBase64())
+        window.addEventListener('blur', () => {
+          if (window.ggbApplet) {
+            clearTimeout(autosaveTimeout)
+            window.ggbApplet.getBase64(putFile)
           }
-        }, 10_000)
+        })
       }
 
       window.addEventListener('load', onLoad)
